@@ -3,6 +3,7 @@ package com.example.coroutine_chap2
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.TextView
+import com.example.coroutine_chap2.model.Feed
 import kotlinx.coroutines.*
 import org.w3c.dom.Element
 import org.w3c.dom.Node
@@ -15,10 +16,10 @@ class MainActivity : AppCompatActivity() {
     private val dispatch = newSingleThreadContext(name = "ServiceCall")
     private val factory = DocumentBuilderFactory.newInstance()
     private val feeds = listOf(
-        "https://www.npr.org/rss/rss.php?id=1001",
-        "https://feeds.foxnews.com/foxnews/politics?format=xml",
+        Feed("npr","https://www.npr.org/rss/rss.php?id=1001"),
+        Feed("fox","https://feeds.foxnews.com/foxnews/politics?format=xml"),
         //"https://rss.cnn.com/rss/cnn_topstories.rss",  //<- 사이트 변경으로 인하여 오류 발생때문에 주석처리
-        "htt://myNewsFeed"
+        Feed("inv","htt://myNewsFeed")
     )
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -61,10 +62,10 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun asyncFetchLeadlines(feed: String, dispatcher: CoroutineDispatcher) =
+    private fun asyncFetchLeadlines(feed: Feed, dispatcher: CoroutineDispatcher) =
         GlobalScope.async(dispatcher) {
             val builder = factory.newDocumentBuilder()
-            val xml = builder.parse(feed)
+            val xml = builder.parse(feed.url)
             val news = xml.getElementsByTagName("channel").item(0)
 
             (0 until news.childNodes.length)
