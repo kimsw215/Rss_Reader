@@ -1,31 +1,39 @@
 package com.example.coroutine_chap2
 
+import com.example.coroutine_chap2.model.Profile
 import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.ReceiveChannel
 import kotlinx.coroutines.channels.consumeEach
 import kotlinx.coroutines.channels.produce
 import javax.xml.parsers.DocumentBuilderFactory
+import kotlin.system.measureTimeMillis
 
-@OptIn(InternalCoroutinesApi::class)
-private val dispatcher = newSingleThreadContext(name = "ServiceCall")
-private val factory = DocumentBuilderFactory.newInstance()
-
-
-fun main(args: Array<String>) = runBlocking {
-    val pro = GlobalScope.produce {
-        send(5)
-        send("a")
+fun main(args: Array<String>)  {
+    runBlocking {
+        val dispatcher = newSingleThreadContext("myDispatcher")
+        val name = withContext(dispatcher) {
+            // 중요한 작업 수행
+            "Susan Calvin"
+        }
+        println("User: $name")
     }
 
-    pro.consumeEach {
-        println(it)
+    /*    val client: ProfileServiceRepository = ProfileServiceClient()
+    val profile = client.asyncfetchById(12)
+    println(profile)*/
+
+}
+interface ProfileServiceRepository {
+    suspend fun asyncfetchByName(name: String) : Profile
+    suspend fun asyncfetchById(id: Long): Profile
+}
+
+class ProfileServiceClient : ProfileServiceRepository {
+    override suspend fun asyncfetchByName(name: String) : Profile {
+        return Profile(1, name, 28)
     }
-
+    override suspend fun asyncfetchById(id: Long) : Profile {
+        return Profile(id,"Susan", 28)
+    }
 }
 
-
-private fun fetchRssHeadlines(): List<String> {
-    val builder = factory.newDocumentBuilder()
-    val xml = builder.parse("https://www.npr.org/rss/rss.php??id=1001")
-    return emptyList()
-}
